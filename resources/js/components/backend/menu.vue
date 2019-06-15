@@ -1,0 +1,202 @@
+<template>
+    <div>
+        <header id="site_header" class="header mobile-menu-hide">
+            <div class=" edit-field"
+                 v-bind:class="{'edit-field-on': isActive  == 'personal'}">
+                <a class="edit-data" @click.prevent="openModal($event)" @mouseover="hover($event)"
+                   @mouseleave="hover($event)"
+                   id="personal">
+                </a>
+                <div class="my-photo">
+                    <img :src="showDetail.image" alt="image">
+                    <div class="mask"></div>
+                </div>
+
+                <div class="site-title-block">
+                    <h1 class="site-title">{{showDetail.name}}</h1>
+                    <p class="site-description">{{showDetail.titles[0].title}}</p>
+                </div>
+            </div>
+            <!-- Navigation & Social buttons -->
+            <div class="site-nav">
+                <!-- Main menu -->
+                <ul id="nav" class="site-main-menu">
+                    <!-- About Me Subpage link -->
+                    <li>
+                        <a class="pt-trigger" href="#home" data-animation="58" data-goto="1">Home</a>
+                        <!-- href value = data-id without # of .pt-page. Data-goto is the number of section -->
+                    </li>
+                    <!-- /About Me Subpage link -->
+                    <!-- About Me Subpage link -->
+                    <li>
+                        <a class="pt-trigger" href="#about_me" data-animation="60" data-goto="2">About me</a>
+                    </li>
+                    <!-- /About Me Subpage link -->
+                    <li>
+                        <a class="pt-trigger" href="#resume" data-animation="59" data-goto="3">Resume</a>
+                    </li>
+                    <li>
+                        <a class="pt-trigger" href="#portfolio" data-animation="60" data-goto="4">Portfolio</a>
+                    </li>
+                    <li>
+                        <a class="pt-trigger" href="#contact" data-animation="58" data-goto="5">Contact</a>
+                    </li>
+                </ul>
+                <!-- /Main menu -->
+
+                <!-- Social buttons -->
+                <ul class="social-links">
+                    <li><a class="tip social-button" href="#" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+                    <!-- Full list of social icons: http://fontawesome.io/icons/#brand -->
+                    <li><a class="tip social-button" href="#" title="Facebook"><i class="fa fa-facebook"></i></a></li>
+                    <li><a class="tip social-button" href="#" title="Google Plus"><i class="fa fa-google-plus"></i></a>
+                    </li>
+                </ul>
+                <!-- /Social buttons -->
+            </div>
+            <!-- Navigation & Social buttons -->
+        </header>
+        <!-- /Header -->
+
+        <!-- Mobile Header -->
+        <div class="mobile-header mobile-visible">
+            <div class="mobile-logo-container">
+                <div class="mobile-site-title">Alex Smith</div>
+            </div>
+            <a class="menu-toggle mobile-visible">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
+
+
+        <div class="modal fade" id="personal-modal" tabindex="-1" role="dialog" style="display: none;">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header block-title mb-3">
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="col-xs-6 col-md-12 subpage-block">
+
+                        <div class="my-photo" style="margin-top:0px; margin-bottom: 0px; ">
+                            <a id="avatar-button" name="avatar-button" @click.prevent="uploadImage()" class="edit-data"></a>
+                            <img :src="showDetail.image" alt="avatar">
+                            <div class="mask"></div>
+                        </div>
+
+                        <form method="post" action="contact_form/contact_form.php"
+                              novalidate="true">
+                            <div class="row">
+                                <div class="col-lg-12 col-xs-12">
+                                    <div class="form-group p-0">
+                                        <h5>Full name:</h5>
+                                        <input type="text" name="name"
+                                               class="form-control "
+                                               v-model="detail.name"
+                                               required="required" data-error="value" placeholder="Title">
+                                        <div class="form-control-border"></div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" v-for="(v,key) in  detail.titles">
+                                    <h5>Title {{key+1}}</h5>
+                                    <div class="row">
+                                        <div class="col-lg-8 col-xs-12">
+                                            <div class="form-group p-0">
+                                                <input type="text" name="title"
+                                                       class="form-control "
+                                                       v-model="v.title"
+                                                       required="required" data-error="value">
+                                                <div class="form-control-border"></div>
+                                                <div class="help-block with-errors"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-xs-12">
+                                            <div class="form-group p-0">
+                                                <button type="button" class="button btn-block mb-0"
+                                                        @click="delTitle(key)">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <button type="button" class="btn-primary float-right" @click="addNewTitle()">Add new title
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button btn-send btn-secondary" data-dismiss="modal"
+                                @click="cancel()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="button btn-send" data-dismiss="modal" @click="save()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "vueMenu.vue",
+        data: function () {
+            return {
+                isActive: false,
+                detail: {
+                    image: 'org/sunshine/images/my_photo.png',
+                    name: 'William He',
+                    titles: [
+                        {title: 'Web developer'},
+                        {title: 'PHP master'},
+                        {title: 'Vue master'},
+                    ],
+                },
+                showDetail: {}
+            }
+        },
+        created() {
+            this.setShowDetail(this.detail);
+        },
+        methods: {
+            /**
+             * Upload avatar image
+             *
+             *
+             */
+            uploadImage(){
+                console.log(this.detail.image);
+            },
+
+            /**
+             *  Edit skills data
+             *  @param key is the key of data 'skill'
+             *  @param k is the key of data 'skill[key].skillDetail' key
+             */
+            delTitle(key) {
+                this.detail.titles.splice(key, 1);
+            },
+            addNewTitle() {
+                var item = {};
+                this.detail.titles.push(item);
+            },
+            save(e) {
+                console.log(this.detail);
+                this.setShowDetail(this.detail);
+            },
+            cancel() {
+                this.detail = JSON.parse(JSON.stringify(this.showDetail));
+            },
+            setShowDetail(arr) {
+                // 赋值到不同的内存地址, 不会双向绑定
+                this.showDetail = JSON.parse(JSON.stringify(arr));
+            }
+        }
+    }
+</script>
+
