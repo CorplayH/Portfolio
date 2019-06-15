@@ -46,7 +46,6 @@ const app = new Vue({
         vuePortfolio,
     },
     data: {
-        isActive: false,
         backGround: {
             url: 'org/sunshine/images/2G5A2942.jpg',
         }

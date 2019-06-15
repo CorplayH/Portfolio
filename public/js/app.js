@@ -55227,7 +55227,6 @@ var app = new Vue({
     vuePortfolio: _components_backend_portfolio_vue__WEBPACK_IMPORTED_MODULE_6__["default"]
   },
   data: {
-    isActive: false,
     backGround: {
       url: 'org/sunshine/images/2G5A2942.jpg'
     }
