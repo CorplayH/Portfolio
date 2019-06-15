@@ -137,6 +137,13 @@ return [
     'providers' => [
 
         /*
+         * Self installed Service Providers
+         *
+         */
+
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+
+        /*
          * Laravel Framework Service Providers...
          */
         Illuminate\Auth\AuthServiceProvider::class,

@@ -1,8 +1,39 @@
-// Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
-
-// Variables
-@import 'variables';
-
-// Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+
+.edit-field{
+    box-sizing: border-box;
+    border: 3px solid transparent;
+    position: relative;
+}
+.edit-field-on{
+    box-sizing: border-box;
+    border: 3px solid #E45A5C;
+    position: relative;
+}
+.edit-data{
+    display: block;
+    position: absolute;
+    top: -2px;
+    right: 0px;
+    width: 36px;
+    height: 36px;
+    transition: opacity .3s;
+    border-radius: 50%;
+    background-color: #ffffff;
+    color: #505050;
+    line-height: 34px;
+    box-shadow: 0 1px 5px 0 rgba(0,0,0,0.2);
+    cursor: pointer;
+    opacity: 1;
+    text-align: center;
+    text-decoration: none;
+    z-index: 999;
+}
+.edit-data::before{
+    box-sizing: border-box;
+    font-family: FontAwesome;
+    text-align: center;
+    font-size: 18px;
+    content: '\f044';
+}
