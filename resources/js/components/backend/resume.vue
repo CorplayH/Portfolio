@@ -468,7 +468,7 @@
                 this.experiences.push(item);
             },
             saveExperience(e) {
-                console.log(this.experiences);
+                // console.log(this.experiences);
 
                 this.setShowExperiences(this.experiences);
             },

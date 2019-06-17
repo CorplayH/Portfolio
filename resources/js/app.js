@@ -28,6 +28,7 @@
 require('./bootstrap');
 window.Vue = require('vue');
 import util from './util.js';
+import '../../public/org/sunshine/js/sweetalert2.all.js';
 import vueHome from './components/backend/home.vue';
 import vueAboutMe from './components/backend/aboutMe.vue';
 import vueResume from './components/backend/resume.vue';

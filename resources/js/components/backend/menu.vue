@@ -53,6 +53,21 @@
                     </li>
                 </ul>
                 <!-- /Social buttons -->
+
+                <ul class="site-main-menu">
+                    <li>
+                        <a class="mt-2" style="background: #157FFB"
+                           data-toggle="modal"
+                           @click.prevent="openModal($event)"
+                           href="javascript:void(0)"
+                           id="account"
+                        >My account</a>
+                    </li>
+                    <li>
+                        <a class="mt-2" style="background: #E45A5C" href="/logout">Logout</a>
+                    </li>
+                </ul>
+
             </div>
             <!-- Navigation & Social buttons -->
         </header>
@@ -61,7 +76,7 @@
         <!-- Mobile Header -->
         <div class="mobile-header mobile-visible">
             <div class="mobile-logo-container">
-                <div class="mobile-site-title">Alex Smith</div>
+                <div class="mobile-site-title">{{detail.name}}</div>
             </div>
             <a class="menu-toggle mobile-visible">
                 <i class="fa fa-bars"></i>
@@ -80,7 +95,8 @@
                     <div class="col-xs-6 col-md-12 subpage-block">
 
                         <div class="my-photo" style="margin-top:0px; margin-bottom: 0px; ">
-                            <a id="avatar-button" name="avatar-button" @click.prevent="uploadImage()" class="edit-data"></a>
+                            <a id="avatar-button" name="avatar-button" @click.prevent="uploadImage()"
+                               class="edit-data"></a>
                             <img :src="showDetail.image" alt="avatar">
                             <div class="mask"></div>
                         </div>
@@ -137,6 +153,63 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="account-modal" tabindex="-1" role="dialog" style="display: none;">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header block-title mb-3">
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="col-xs-6 col-md-12 subpage-block">
+
+                        <form method="post" action="contact_form/contact_form.php"
+                              novalidate="true">
+                            <div class="row">
+                                <div class="col-lg-12 col-xs-12">
+                                    <h2 class="text-center">Change password:</h2>
+                                    <div class="form-group p-0">
+                                        <h5>Old password:</h5>
+                                        <input type="password" name="oldPassword"
+                                               class="form-control"
+                                               v-model="passwords.oldPassword"
+                                               required="required" data-error="value" placeholder="Old password">
+                                        <div class="form-control-border"></div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                    <div class="form-group p-0">
+                                        <h5>New password:</h5>
+                                        <input type="password" name="newPassword"
+                                               class="form-control"
+                                               v-model="passwords.newPassword"
+                                               required="required" data-error="value" placeholder="New password">
+                                        <div class="form-control-border"></div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                    <div class="form-group p-0">
+                                        <h5>Confirm your password:</h5>
+                                        <input type="password" name="newPassword_confirmation"
+                                               class="form-control"
+                                               v-model="passwords.newPassword_confirmation"
+                                               required="required" data-error="value"
+                                               placeholder="Confirm your password">
+                                        <div class="form-control-border"></div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button btn-send btn-secondary" data-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="submit" class="button btn-send" @click="updatePassword($event)">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
     </div>
@@ -157,6 +230,11 @@
                         {title: 'Vue master'},
                     ],
                 },
+                passwords: {
+                    oldPassword: '',
+                    newPassword: '',
+                    newPassword_confirmation: '',
+                },
                 showDetail: {}
             }
         },
@@ -165,11 +243,34 @@
         },
         methods: {
             /**
+             * Change password
+             */
+            updatePassword(e) {
+                axios.put('/admin/updateUser', this.passwords).then((res) => {
+                    console.log(res);
+                    if (res.data.code === 1) {
+                        swal({
+                            type: "success",
+                            text: res.data.message,
+                            timer: 2000,
+                        });
+                        var modalId = '#' + e.path[4].id;
+                        $(modalId).modal('toggle');
+                    } else if (res.data.code === 2) {
+                        swal({
+                            type: "error",
+                            text: res.data.message,
+                            timer: 2000,
+                        });
+                    }
+                })
+            },
+
+            /**
              * Upload avatar image
              *
-             *
              */
-            uploadImage(){
+            uploadImage() {
                 console.log(this.detail.image);
             },
 

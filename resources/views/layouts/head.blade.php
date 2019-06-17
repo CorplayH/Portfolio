@@ -6,6 +6,7 @@
     <meta name="description" content="Sunshine - Responsive vCard Template" />
     <meta name="keywords" content="vcard, resposnive, retina, resume, jquery, css3, bootstrap, Sunshine, portfolio" />
     <meta name="author" content="lmtheme" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{asset('/org/sunshine')}}/favicon.ico">
 
     <link rel="stylesheet" href="{{asset('/css')}}/app.css">
