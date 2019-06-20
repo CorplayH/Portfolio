@@ -83,7 +83,6 @@
             </a>
         </div>
 
-
         <div class="modal fade" id="personal-modal" tabindex="-1" role="dialog" style="display: none;">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -101,7 +100,7 @@
                             <div class="mask"></div>
                         </div>
 
-                        <form method="post" action="contact_form/contact_form.php"
+                        <form id="userInfo"
                               novalidate="true">
                             <div class="row">
                                 <div class="col-lg-12 col-xs-12">
@@ -148,7 +147,8 @@
                                 @click="cancel()">
                             Cancel
                         </button>
-                        <button type="submit" class="button btn-send" data-dismiss="modal" @click="save()">Save</button>
+                        <button type="button" class="button btn-send" data-dismiss="modal" @click="save($event)">Save
+                        </button>
                     </div>
                 </div>
             </div>
@@ -205,7 +205,9 @@
                         >
                             Cancel
                         </button>
-                        <button type="submit" class="button btn-send" @click="updatePassword($event)">Save</button>
+                        <button type="submit" class="button btn-send" data-dismiss="modal"
+                                @click="updatePassword($event)">Save
+                        </button>
                     </div>
                 </div>
             </div>
@@ -222,12 +224,10 @@
             return {
                 isActive: false,
                 detail: {
-                    image: 'org/sunshine/images/my_photo.png',
-                    name: 'William He',
+                    // get in Created method
+                    name: 'onLoad',
                     titles: [
-                        {title: 'Web developer'},
-                        {title: 'PHP master'},
-                        {title: 'Vue master'},
+                        {title: 'onLoad'},
                     ],
                 },
                 passwords: {
@@ -235,37 +235,32 @@
                     newPassword: '',
                     newPassword_confirmation: '',
                 },
+                AllData: [],
                 showDetail: {}
             }
         },
         created() {
+            this.getUserInfo();
             this.setShowDetail(this.detail);
         },
         methods: {
+            getUserInfo() {
+                axios.get('/getUserInfo/' + this.$uToken)
+                    .then((res) => {
+                        this.detail = res.data;
+                        this.$eventHub.$emit('initUserInfo', this.detail);
+                        this.setShowDetail(this.detail);
+                    });
+            },
             /**
              * Change password
              */
-            updatePassword(e) {
-                axios.put('/admin/updateUser', this.passwords).then((res) => {
-                    console.log(res);
-                    if (res.data.code === 1) {
-                        swal({
-                            type: "success",
-                            text: res.data.message,
-                            timer: 2000,
-                        });
-                        var modalId = '#' + e.path[4].id;
-                        $(modalId).modal('toggle');
-                    } else if (res.data.code === 2) {
-                        swal({
-                            type: "error",
-                            text: res.data.message,
-                            timer: 2000,
-                        });
-                    }
-                })
+            updatePassword() {
+                axios.put('/admin/updateUserPassword', this.passwords)
+                    .then((res) => {
+                        this.messageAlert(res.data);
+                    })
             },
-
             /**
              * Upload avatar image
              *
@@ -273,7 +268,6 @@
             uploadImage() {
                 console.log(this.detail.image);
             },
-
             /**
              *  Edit skills data
              *  @param key is the key of data 'skill'
@@ -286,9 +280,24 @@
                 var item = {};
                 this.detail.titles.push(item);
             },
-            save(e) {
-                console.log(this.detail);
-                this.setShowDetail(this.detail);
+
+            //! update userInfo data
+            save() {
+                // Because Form data is bind to this.detail,
+                // so dont need to submit the form but pass the data
+                axios.post('/admin/editUserInfo', this.detail)
+                    .then((res) => {
+                        // code 1 => success
+                        if (res.data.code === 1) {
+                            // submit an event to global bus for data on home.vue
+                            // The 1st param is event bus name (自命名的事件名字)
+                            // second is data want to pass, it will be the param for the handle method when listen to this event
+                            this.$eventHub.$emit('userDetail-update', this.detail);
+                            // Set show data on the page
+                            this.setShowDetail(this.detail);
+                        }
+                        this.messageAlert(res.data);
+                    });
             },
             cancel() {
                 this.detail = JSON.parse(JSON.stringify(this.showDetail));

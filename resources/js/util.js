@@ -13,6 +13,19 @@ export default {
                 this.isActive = false;
             }
         };
+        // global message alert
+        Vue.prototype.messageAlert = function(data){
+                swal({
+                    type: data.type,
+                    text: data.message,
+                    timer: 2000,
+                });
+        };
+        // Set a token for each users / domain name on meta tag
+        Vue.prototype.$uToken = document.querySelector("meta[name='uToken']").getAttribute('content');
+
+        // global event bus for global data change event
+        Vue.prototype.$eventHub = new Vue();
 
         // Vue.prototype.portfolioChange = function () {
         //     var figureLen = $('#portfolio_grid').children('figure').length;

@@ -34,13 +34,13 @@
                         </button>
                     </div>
                     <div class="col-xs-6 col-md-12 subpage-block">
-                        <form id="contact-form" method="post" action="contact_form/contact_form.php"
+                        <form method="post" action="contact_form/contact_form.php"
                               novalidate="true">
 
                             <div class="row" v-for="(v,key) in detail">
                                 <div class="col-lg-3 col-xs-12">
                                     <div class="form-group p-0">
-                                        <input v-model="v.title" type="text" name="title"
+                                        <input v-model="v.title" type="text" :name="v.title "
                                                class="form-control "
                                                required="required" data-error="value" placeholder="Title">
                                         <div class="form-control-border"></div>
@@ -50,7 +50,7 @@
 
                                 <div class="col-lg-7 col-xs-12">
                                     <div class="form-group p-0">
-                                        <input v-model="v.value" type="text" name="value"
+                                        <input v-model="v.value" type="text" :name="'v_' + v.title "
                                                class="form-control "
                                                required="required" data-error="value" value="v.value">
                                         <div class="form-control-border"></div>
@@ -86,29 +86,43 @@
         data: function () {
             return {
                 isActive: false,
-                personal:{
-                    name: 'William He',
+                personal: {
+                    name: 'onLoad',
                     titles: [
-                        {title: 'Web developer'},
-                        {title: 'PHP master'},
-                        {title: 'Vue master'},
+                        {title: 'onLoad'},
+                        {title: 'onLoad'},
+                        {title: 'onLoad'},
+                        {title: 'onLoad'},
                     ],
                 },
                 detail: [
-                    {title: 'Age', value: 18},
-                    {title: 'Address', value: '88 Some Street, Some Town'},
-                    {title: 'E-mail', value: 'email@example.com'},
-                    {title: 'Phone', value: '+0123 123 456 789'},
-                    {title: 'Freelance', value: 'Available'}
+                    // fetch from back end
+                    // {title: 'Age', value: 18},
                 ],
-                showData: []
+                AllData: [],
+                showData: [],
             }
         },
         // 加载页面时赋值, 给页面循环 v-for
         created() {
-            this.setShowData(this.detail);
+            // listen to the 'userDetail-update' event, then call an function
+            this.$eventHub.$on('userDetail-update', this.userDetailUpdate);
+            this.$eventHub.$on('initUserInfo', this.userDetailUpdate);
+            // this.setShowData(this.detail);
         },
         methods: {
+            /**
+             * Response method for listening event
+             * @param detail: Transferred from $emit event in Menu.vue
+             */
+            userDetailUpdate(detail) {
+                this.personal = detail;
+                this.detail = detail.basicInfo;
+                this.setShowData(this.detail);
+            },
+            fetchData() {
+                // console.log(123);
+            },
             addNew() {
                 var item = {};
                 this.detail.push(item);
@@ -123,10 +137,13 @@
                 this.setShowData(this.detail);
             },
             setShowData(arr) {
-
                 // 赋值到不同的内存地址, 不会双向绑定
                 this.showData = JSON.parse(JSON.stringify(arr));
             }
-        }
+        },
+        beforeDestroy() {
+            this.$eventHub.$off('initUserInfo');
+            this.$eventHub.$off('userDetail-update');
+        },
     }
 </script>

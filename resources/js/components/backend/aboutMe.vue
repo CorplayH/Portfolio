@@ -81,9 +81,6 @@
         <!-- End of Services block -->
 
 
-
-
-
         <div class="modal fade" id="abInfo-modal" tabindex="-1" role="dialog" style="display: none;">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -305,6 +302,7 @@
         },
 
         created() {
+            this.fetchData();
             this.setShowGeneralInfo(this.generalInfo);
             this.setShowTestimonials(this.testimonials);
             this.setShowStrengths(this.strengths);
@@ -312,6 +310,9 @@
 
 
         methods: {
+            fetchData(){
+                // console.log(123);
+            },
             /**
              * Strengths control
              */

@@ -17,14 +17,34 @@
 //
 
 
-Route::group(['middleware' => 'auth' ,'prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.'],function (){
-    Route::get('/','AdminController@index')->name('adminHome');
+// Get user info
 
+Route::group(['namespace' =>'Info', 'as' => '.info' ], function (){
+    Route::get('/getUserInfo/{uToken}','UserInfoController@index')->name('getUserInfo');
 });
 
 
+
+// User information Editing
+Route::group(['middleware' => 'auth','prefix' => 'admin','namespace' => 'Info', 'as' => '.info'],function(){
+    Route::post('/editUserInfo','UserInfoController@store')->name('editUserInfo');
+});
+
+
+
+
+
+
+
+
+
+// admin panel
+Route::group(['middleware' => 'auth' ,'prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.'],function (){
+    Route::get('/','AdminController@index')->name('adminHome');
+});
+
 //Change password
-Route::put('admin/updateUser','User\UserController@updateUserPassword')->name('updateUserPassword');
+Route::put('admin/updateUserPassword','User\UserController@updateUserPassword')->name('updateUserPassword');
 
 //forget password
 Route::get('/getEmail','User\ForgetPasswordController@emailPage')->name('emailPage');

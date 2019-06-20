@@ -2037,9 +2037,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "vueAboutMe.vue",
   data: function data() {
@@ -2081,11 +2078,15 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
+    this.fetchData();
     this.setShowGeneralInfo(this.generalInfo);
     this.setShowTestimonials(this.testimonials);
     this.setShowStrengths(this.strengths);
   },
   methods: {
+    fetchData: function fetchData() {// console.log(123);
+    },
+
     /**
      * Strengths control
      */
@@ -2394,39 +2395,42 @@ __webpack_require__.r(__webpack_exports__);
     return {
       isActive: false,
       personal: {
-        name: 'William He',
+        name: 'onLoad',
         titles: [{
-          title: 'Web developer'
+          title: 'onLoad'
         }, {
-          title: 'PHP master'
+          title: 'onLoad'
         }, {
-          title: 'Vue master'
+          title: 'onLoad'
+        }, {
+          title: 'onLoad'
         }]
       },
-      detail: [{
-        title: 'Age',
-        value: 18
-      }, {
-        title: 'Address',
-        value: '88 Some Street, Some Town'
-      }, {
-        title: 'E-mail',
-        value: 'email@example.com'
-      }, {
-        title: 'Phone',
-        value: '+0123 123 456 789'
-      }, {
-        title: 'Freelance',
-        value: 'Available'
-      }],
+      detail: [// fetch from back end
+        // {title: 'Age', value: 18},
+      ],
+      AllData: [],
       showData: []
     };
   },
   // 加载页面时赋值, 给页面循环 v-for
   created: function created() {
-    this.setShowData(this.detail);
+    // listen to the 'userDetail-update' event, then call an function
+    this.$eventHub.$on('userDetail-update', this.userDetailUpdate);
+    this.$eventHub.$on('initUserInfo', this.userDetailUpdate); // this.setShowData(this.detail);
   },
   methods: {
+    /**
+     * Response method for listening event
+     * @param detail: Transferred from $emit event in Menu.vue
+     */
+    userDetailUpdate: function userDetailUpdate(detail) {
+      this.personal = detail;
+      this.detail = detail.basicInfo;
+      this.setShowData(this.detail);
+    },
+    fetchData: function fetchData() {// console.log(123);
+    },
     addNew: function addNew() {
       var item = {};
       this.detail.push(item);
@@ -2444,6 +2448,10 @@ __webpack_require__.r(__webpack_exports__);
       // 赋值到不同的内存地址, 不会双向绑定
       this.showData = JSON.parse(JSON.stringify(arr));
     }
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.$eventHub.$off('initUserInfo');
+    this.$eventHub.$off('userDetail-update');
   }
 });
 
@@ -2675,20 +2683,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "vueMenu.vue",
   data: function data() {
     return {
       isActive: false,
       detail: {
-        image: 'org/sunshine/images/my_photo.png',
-        name: 'William He',
+        // get in Created method
+        name: 'onLoad',
         titles: [{
-          title: 'Web developer'
-        }, {
-          title: 'PHP master'
-        }, {
-          title: 'Vue master'
+          title: 'onLoad'
         }]
       },
       passwords: {
@@ -2696,35 +2702,35 @@ __webpack_require__.r(__webpack_exports__);
         newPassword: '',
         newPassword_confirmation: ''
       },
+      AllData: [],
       showDetail: {}
     };
   },
   created: function created() {
+    this.getUserInfo();
     this.setShowDetail(this.detail);
   },
   methods: {
+    getUserInfo: function getUserInfo() {
+      var _this = this;
+
+      axios.get('/getUserInfo/' + this.$uToken).then(function (res) {
+        _this.detail = res.data;
+
+        _this.$eventHub.$emit('initUserInfo', _this.detail);
+
+        _this.setShowDetail(_this.detail);
+      });
+    },
+
     /**
      * Change password
      */
-    updatePassword: function updatePassword(e) {
-      axios.put('/admin/updateUser', this.passwords).then(function (res) {
-        console.log(res);
+    updatePassword: function updatePassword() {
+      var _this2 = this;
 
-        if (res.data.code === 1) {
-          swal({
-            type: "success",
-            text: res.data.message,
-            timer: 2000
-          });
-          var modalId = '#' + e.path[4].id;
-          $(modalId).modal('toggle');
-        } else if (res.data.code === 2) {
-          swal({
-            type: "error",
-            text: res.data.message,
-            timer: 2000
-          });
-        }
+      axios.put('/admin/updateUserPassword', this.passwords).then(function (res) {
+        _this2.messageAlert(res.data);
       });
     },
 
@@ -2748,9 +2754,26 @@ __webpack_require__.r(__webpack_exports__);
       var item = {};
       this.detail.titles.push(item);
     },
-    save: function save(e) {
-      console.log(this.detail);
-      this.setShowDetail(this.detail);
+    //! update userInfo data
+    save: function save() {
+      var _this3 = this;
+
+      // Because Form data is bind to this.detail,
+      // so dont need to submit the form but pass the data
+      axios.post('/admin/editUserInfo', this.detail).then(function (res) {
+        // code 1 => success
+        if (res.data.code === 1) {
+          // submit an event to global bus for data on home.vue
+          // The 1st param is event bus name (自命名的事件名字)
+          // second is data want to pass, it will be the param for the handle method when listen to this event
+          _this3.$eventHub.$emit('userDetail-update', _this3.detail); // Set show data on the page
+
+
+          _this3.setShowDetail(_this3.detail);
+        }
+
+        _this3.messageAlert(res.data);
+      });
     },
     cancel: function cancel() {
       this.detail = JSON.parse(JSON.stringify(this.showDetail));
@@ -40299,7 +40322,6 @@ var render = function() {
                   "form",
                   {
                     attrs: {
-                      id: "contact-form",
                       method: "post",
                       action: "contact_form/contact_form.php",
                       novalidate: "true"
@@ -40321,7 +40343,7 @@ var render = function() {
                             staticClass: "form-control ",
                             attrs: {
                               type: "text",
-                              name: "title",
+                              name: v.title,
                               required: "required",
                               "data-error": "value",
                               placeholder: "Title"
@@ -40357,7 +40379,7 @@ var render = function() {
                             staticClass: "form-control ",
                             attrs: {
                               type: "text",
-                              name: "value",
+                              name: "v_" + v.title,
                               required: "required",
                               "data-error": "value",
                               value: "v.value"
@@ -40645,139 +40667,125 @@ var render = function() {
                   ]
                 ),
                 _vm._v(" "),
-                _c(
-                  "form",
-                  {
-                    attrs: {
-                      method: "post",
-                      action: "contact_form/contact_form.php",
-                      novalidate: "true"
-                    }
-                  },
-                  [
-                    _c(
-                      "div",
-                      { staticClass: "row" },
-                      [
-                        _c("div", { staticClass: "col-lg-12 col-xs-12" }, [
-                          _c("div", { staticClass: "form-group p-0" }, [
-                            _c("h5", [_vm._v("Full name:")]),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.detail.name,
-                                  expression: "detail.name"
-                                }
-                              ],
-                              staticClass: "form-control ",
-                              attrs: {
-                                type: "text",
-                                name: "name",
-                                required: "required",
-                                "data-error": "value",
-                                placeholder: "Title"
-                              },
-                              domProps: { value: _vm.detail.name },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(
-                                    _vm.detail,
-                                    "name",
-                                    $event.target.value
-                                  )
-                                }
+                _c("form", { attrs: { id: "userInfo", novalidate: "true" } }, [
+                  _c(
+                    "div",
+                    { staticClass: "row" },
+                    [
+                      _c("div", { staticClass: "col-lg-12 col-xs-12" }, [
+                        _c("div", { staticClass: "form-group p-0" }, [
+                          _c("h5", [_vm._v("Full name:")]),
+                          _vm._v(" "),
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.detail.name,
+                                expression: "detail.name"
                               }
-                            }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "form-control-border" }),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "help-block with-errors" })
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _vm._l(_vm.detail.titles, function(v, key) {
-                          return _c("div", { staticClass: "col-lg-6" }, [
-                            _c("h5", [_vm._v("Title " + _vm._s(key + 1))]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "row" }, [
-                              _c("div", { staticClass: "col-lg-8 col-xs-12" }, [
-                                _c("div", { staticClass: "form-group p-0" }, [
-                                  _c("input", {
-                                    directives: [
-                                      {
-                                        name: "model",
-                                        rawName: "v-model",
-                                        value: v.title,
-                                        expression: "v.title"
+                            ],
+                            staticClass: "form-control ",
+                            attrs: {
+                              type: "text",
+                              name: "name",
+                              required: "required",
+                              "data-error": "value",
+                              placeholder: "Title"
+                            },
+                            domProps: { value: _vm.detail.name },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.detail,
+                                  "name",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "form-control-border" }),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "help-block with-errors" })
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _vm._l(_vm.detail.titles, function(v, key) {
+                        return _c("div", { staticClass: "col-lg-6" }, [
+                          _c("h5", [_vm._v("Title " + _vm._s(key + 1))]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "row" }, [
+                            _c("div", { staticClass: "col-lg-8 col-xs-12" }, [
+                              _c("div", { staticClass: "form-group p-0" }, [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: v.title,
+                                      expression: "v.title"
+                                    }
+                                  ],
+                                  staticClass: "form-control ",
+                                  attrs: {
+                                    type: "text",
+                                    name: "title",
+                                    required: "required",
+                                    "data-error": "value"
+                                  },
+                                  domProps: { value: v.title },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
                                       }
-                                    ],
-                                    staticClass: "form-control ",
-                                    attrs: {
-                                      type: "text",
-                                      name: "title",
-                                      required: "required",
-                                      "data-error": "value"
-                                    },
-                                    domProps: { value: v.title },
+                                      _vm.$set(v, "title", $event.target.value)
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("div", {
+                                  staticClass: "form-control-border"
+                                }),
+                                _vm._v(" "),
+                                _c("div", {
+                                  staticClass: "help-block with-errors"
+                                })
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-lg-4 col-xs-12" }, [
+                              _c("div", { staticClass: "form-group p-0" }, [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "button btn-block mb-0",
+                                    attrs: { type: "button" },
                                     on: {
-                                      input: function($event) {
-                                        if ($event.target.composing) {
-                                          return
-                                        }
-                                        _vm.$set(
-                                          v,
-                                          "title",
-                                          $event.target.value
-                                        )
+                                      click: function($event) {
+                                        return _vm.delTitle(key)
                                       }
                                     }
-                                  }),
-                                  _vm._v(" "),
-                                  _c("div", {
-                                    staticClass: "form-control-border"
-                                  }),
-                                  _vm._v(" "),
-                                  _c("div", {
-                                    staticClass: "help-block with-errors"
-                                  })
-                                ])
-                              ]),
-                              _vm._v(" "),
-                              _c("div", { staticClass: "col-lg-4 col-xs-12" }, [
-                                _c("div", { staticClass: "form-group p-0" }, [
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "button btn-block mb-0",
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.delTitle(key)
-                                        }
-                                      }
-                                    },
-                                    [
-                                      _vm._v(
-                                        "\n                                                Delete\n                                            "
-                                      )
-                                    ]
-                                  )
-                                ])
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                                Delete\n                                            "
+                                    )
+                                  ]
+                                )
                               ])
                             ])
                           ])
-                        })
-                      ],
-                      2
-                    )
-                  ]
-                ),
+                        ])
+                      })
+                    ],
+                    2
+                  )
+                ]),
                 _vm._v(" "),
                 _c(
                   "button",
@@ -40817,14 +40825,14 @@ var render = function() {
                   "button",
                   {
                     staticClass: "button btn-send",
-                    attrs: { type: "submit", "data-dismiss": "modal" },
+                    attrs: { type: "button", "data-dismiss": "modal" },
                     on: {
                       click: function($event) {
-                        return _vm.save()
+                        return _vm.save($event)
                       }
                     }
                   },
-                  [_vm._v("Save")]
+                  [_vm._v("Save\n                    ")]
                 )
               ])
             ])
@@ -41010,14 +41018,14 @@ var render = function() {
                   "button",
                   {
                     staticClass: "button btn-send",
-                    attrs: { type: "submit" },
+                    attrs: { type: "submit", "data-dismiss": "modal" },
                     on: {
                       click: function($event) {
                         return _vm.updatePassword($event)
                       }
                     }
                   },
-                  [_vm._v("Save")]
+                  [_vm._v("Save\n                    ")]
                 )
               ])
             ])
@@ -58515,12 +58523,25 @@ __webpack_require__.r(__webpack_exports__);
       } else {
         this.isActive = false;
       }
-    }; // Vue.prototype.portfolioChange = function () {
+    }; // global message alert
+
+
+    Vue.prototype.messageAlert = function (data) {
+      swal({
+        type: data.type,
+        text: data.message,
+        timer: 2000
+      });
+    }; // Set a token for each users / domain name on meta tag
+
+
+    Vue.prototype.$uToken = document.querySelector("meta[name='uToken']").getAttribute('content'); // global event bus for global data change event
+
+    Vue.prototype.$eventHub = new Vue(); // Vue.prototype.portfolioChange = function () {
     //     var figureLen = $('#portfolio_grid').children('figure').length;
     //
     //     console.log(figureLen);
     // };
-
   }
 });
 

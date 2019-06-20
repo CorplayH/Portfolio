@@ -7,6 +7,7 @@
     <meta name="keywords" content="vcard, resposnive, retina, resume, jquery, css3, bootstrap, Sunshine, portfolio" />
     <meta name="author" content="lmtheme" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="uToken" content="{{$uToken}}">
     <link rel="shortcut icon" href="{{asset('/org/sunshine')}}/favicon.ico">
 
     <link rel="stylesheet" href="{{asset('/css')}}/app.css">

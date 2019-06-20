@@ -9,7 +9,7 @@
 <!-- /Loading animation -->
 <div id="page" class="page">
     <!-- Header + Mobile Header -->
-    <div id="vueMenu">
+    <div id="vueMenu" v-cloak="">
         <vue-menu></vue-menu>
         {{--    @include('layouts.sideMenu')--}}
     </div>
@@ -17,7 +17,7 @@
     <!-- Main Content -->
     <div id="main" class="site-main">
         <!-- Page changer wrapper -->
-        <div id="vueApp" class="pt-wrapper">
+        <div id="vueApp" class="pt-wrapper" v-cloak="">
             <!-- Subpages -->
             <div class="subpages">
                 <!-- Home Subpage -->
