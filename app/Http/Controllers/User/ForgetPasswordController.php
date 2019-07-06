@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Notifications\forgetPassword;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,8 +30,7 @@ class ForgetPasswordController extends Controller
             $token = DB::table('password_resets')->where('email', $user->email)->value('token');
             // Email user by using notification with the token
             $user->notify(new forgetPassword($token));
-
-            return redirect('/getEmail')->withInput()->with('success', 'Email has been send');
+            return redirect('/door')->withInput()->with('success', 'Email has been send');
         } else {
             return redirect('/getEmail')->withInput()->with('error', 'The account does not exist');
         }
@@ -43,11 +43,14 @@ class ForgetPasswordController extends Controller
         $token = $request->route('token');
         // check token is valid & get data
         $data = DB::table('password_resets')->where('token', $token)->first();
-        if ($data) {
+        // get token time
+        $oldTime = carbon::parse($data->created_at);
+        // check if the token is expired
+        if ($data || $oldTime->addMinute(15) < now()) {
+            return redirect()->route('loginPage')->with('error', 'link expired');
+        } else {
             //compact data witch include ('token') to reset page
             return view('backend.resetPassword', compact('data'));
-        } else {
-            return redirect()->route('loginPage');
         }
     }
 

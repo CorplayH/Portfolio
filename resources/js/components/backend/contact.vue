@@ -1,110 +1,106 @@
 <template>
     <div>
-        <div class="home-page-block-bg">
-            <div class="mask"></div>
+        <div class="section-title-block">
+            <h2 class="section-title">Contact</h2>
         </div>
-        <div class="home-page-block">
-            <div class="v-align">
-                <h2>Backend Smith</h2>
-                <div id="rotate" class="text-rotate">
-                    <div>
-                        <p class="home-page-description">Web Designer</p>
-                    </div>
-                    <div>
-                        <p class="home-page-description">Frontend-developer</p>
-                    </div>
-                </div>
 
-                <div class="block end" style="text-align: center">
-                    <ul class="info-list edit-field" v-bind:class="{'edit-field-on': isActive  == 'home'}">
-                        <a class="edit-data" @click.prevent="openModal($event)" @mouseover="hover($event)"
-                           @mouseleave="hover($event)"
-                           id="home">
-                        </a>
-                        <li v-for="v in showData">
-                            <span class="title">{{v.title}}</span><span class="value">{{v.value}}</span>
-                        </li>
-                    </ul>
+        <div class="row">
+            <div class="col-sm-6 col-md-6 subpage-block">
+                <div class="block-title">
+                    <h3>Get in Touch</h3>
                 </div>
+                <ul class="info-list">
+                    <li class="col-12" v-for="(v,k) in showDetail ">
+                        <div v-if="v.title == 'E-mail'">
+                            <span class="title">{{v.title}}</span>
+                            <a :href="'mailto:' + v.value">
+                                {{v.value}}
+                            </a>
+                        </div>
+                        <div v-else>
+                            <span class="title">{{v.title}}</span>
+                            <span class="value">{{v.value}}</span>
+                        </div>
+
+                    </li>
+                </ul>
             </div>
-        </div>
-
-        <div class="modal fade" id="home-modal" tabindex="-1" role="dialog" style="display: none;">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header block-title mb-3">
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="col-xs-6 col-md-12 subpage-block">
-                        <form id="contact-form" method="post" action="contact_form/contact_form.php"
-                              novalidate="true">
-
-                            <div class="row" v-for="(v,key) in detail">
-                                <div class="col-lg-3 col-xs-12">
-                                    <div class="form-group p-0">
-                                        <input v-model="v.title" type="text" name="title"
-                                               class="form-control "
-                                               required="required" data-error="value" placeholder="Title">
-                                        <div class="form-control-border"></div>
-                                        <div class="help-block with-errors"></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-7 col-xs-12">
-                                    <div class="form-group p-0">
-                                        <input v-model="v.value" type="text" name="value"
-                                               class="form-control "
-                                               required="required" data-error="value" value="v.value">
-                                        <div class="form-control-border"></div>
-                                        <div class="help-block with-errors"></div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2 col-xs-12">
-                                    <div class="form-group p-0">
-                                        <button type="button" class="button btn-block mb-0" @click="del(key)">Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <button type="button" class="btn-primary float-right" @click="addNew()">Add new</button>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="button btn-send btn-secondary" data-dismiss="modal"
-                                @click="cancel()">
-                            Cancel
-                        </button>
-                        <button type="submit" class="button btn-send" data-dismiss="modal" @click="save()">Save</button>
-                    </div>
+            <div class="col-sm-6 col-md-6 subpage-block">
+                <div class="block-title">
+                    <h3>Contact Form</h3>
                 </div>
+                <form id="contact-form" method="post"  action="">
+                    <div class="messages"></div>
+                    <div class="controls">
+                        <div class="form-group">
+                            <input id="form_name" type="text"
+                                   name="name" v-model="form.name"
+                                   class="form-control" placeholder="Full Name"
+                                   required="required" data-error="Name is required.">
+                            <div class="form-control-border"></div>
+                            <i class="form-control-icon fa fa-user"></i>
+                            <div class="help-block with-errors"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <input id="form_email" type="email"
+                                   name="email" v-model="form.email"
+                                   class="form-control"
+                                   placeholder="Email Address"
+                                   required="required" data-error="Valid email is required.">
+                            <div class="form-control-border"></div>
+                            <i class="form-control-icon fa fa-envelope"></i>
+                            <div class="help-block with-errors"></div>
+                        </div>
+
+                        <div class="form-group">
+                    <textarea id="form_message"
+                              name="message" v-model="form.content"
+                              class="form-control" placeholder="Message for me"
+                              rows="4" required="required" data-error="Please, leave me a message."></textarea>
+                            <div class="form-control-border"></div>
+                            <i class="form-control-icon fa fa-comment"></i>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                        <div class="g-recaptcha"  data-sitekey="6LfUa6sUAAAAAGIwjkBxU1hKppy28Zxqiv5ITGe-"
+                             data-callback="correctCaptcha"></div>
+
+                        <input id="contactSubmit" type="submit" class="button btn-send" value="Send message">
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </template>
 <script>
     export default {
-        name: "vueHome.vue",
+        name: "vueContact.vue",
         data: function () {
             return {
-                isActive: false,
-                detail: [
-                    {title: 'Age', value: 18},
-                    {title: 'Address', value: '88 Some Street, Some Town'},
-                    {title: 'E-mail', value: 'email@example.com'},
-                    {title: 'Phone', value: '+0123 123 456 789'},
-                    {title: 'Freelance', value: 'Available'}
-                ],
-                showData: []
+                detail: [],
+                form:{},
+                showDetail: []
             }
         },
         // 加载页面时赋值, 给页面循环 v-for
         created() {
-            this.setShowData(this.detail);
+            this.$eventHub.$on('initUserInfo', this.userDetailUpdate);
+            this.$eventHub.$on('updateUserBasicInfo', this.userBasicInfoUpdate);
+            // this.setShowData(this.detail);
         },
         methods: {
+            /**
+             * ! init data
+             * @param detail
+             */
+            userDetailUpdate(detail) {
+                this.detail = detail.basicInfo;
+                this.setShowData(this.detail);
+            },
+            userBasicInfoUpdate(detail) {
+                this.detail = detail;
+                this.setShowData(this.detail);
+            },
             addNew() {
                 var item = {};
                 this.detail.push(item);
@@ -120,8 +116,11 @@
             },
             setShowData(arr) {
                 // 赋值到不同的内存地址, 不会双向绑定
-                this.showData = JSON.parse(JSON.stringify(arr));
+                this.showDetail = JSON.parse(JSON.stringify(arr));
             }
+        },
+        beforeDestroy() {
+            this.$eventHub.$off('initUserInfo');
         }
     }
 </script>

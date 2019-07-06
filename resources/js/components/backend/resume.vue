@@ -69,16 +69,15 @@
         <div class="row">
             <div class="col-6">
                 <div class="download-cv-block col-6">
-                    <a class="button" target="_blank" href="#">Download CV</a>
+                    <a class="button" download="" :href="cvUrl.url">Download CV</a>
                 </div>
             </div>
 
             <form class="col-6" name="upLoad">
                 <div>
-                    <button class="btn-primary col-6" id="upLoadCv" @click="uploadCv()">
-                        Upload your CV
-                    </button>
-                    <input type="file" hidden class="form-control-file" id="upLoadCvInput">
+                    <label for="upLoadCvInput" class="btn btn-primary col-6">Upload your CV</label>
+                    <input type="file" style="display: none" class="form-control-file" id="upLoadCvInput"
+                           @change="uploadMyCV($event)">
                 </div>
             </form>
 
@@ -259,7 +258,8 @@
                         </button>
                     </div>
                     <div class="col-xs-6 col-md-12 subpage-block">
-                        <form id="experience-modal" name="experience-modal" method="post" action="contact_form/contact_form.php"
+                        <form id="experience-modal" name="experience-modal" method="post"
+                              action="contact_form/contact_form.php"
                               novalidate="true">
                             <div class="messages"></div>
                             <div class="row controls" v-for="(value,key) in skills">
@@ -282,7 +282,8 @@
                                                 <input type="text" name="degree"
                                                        class="form-control "
                                                        v-model="v.skillName"
-                                                       required="required" data-error="required" placeholder="Skill name">
+                                                       required="required" data-error="required"
+                                                       placeholder="Skill name">
                                                 <div class="form-control-border"></div>
                                                 <div class="help-block with-errors"></div>
                                             </div>
@@ -355,65 +356,18 @@
         data: function () {
             return {
                 isActive: false,
-                educations: [
-                    {
-                        time: '2010',
-                        degree: 'Bachelor',
-                        school: 'CPIT',
-                        detail: 'Mauris magna sapien, pharetra consectetur fringilla vitae, interdum sed tortor.'
-                    },
-                    {
-                        time: '2010',
-                        degree: 'Bachelor',
-                        school: 'CPIT',
-                        detail: 'Mauris magna sapien, pharetra consectetur fringilla vitae, interdum sed tortor.'
-                    },
-                ],
-                experiences: [
-                    {
-                        time: 'Dec 2012 - Current',
-                        position: 'Frontend-developer',
-                        company: 'Web Agency',
-                        detail: 'Mauris magna sapien, pharetra consectetur fringilla vitae, interdum sed tortor.'
-                    },
-                    {
-                        time: 'Dec 2011 - Nov 2012',
-                        position: 'Web Designer',
-                        company: 'Apple Inc.',
-                        detail: 'Mauris magna sapien, pharetra consectetur fringilla vitae, interdum sed tortor.'
-                    },
-                ],
-                skills: [
-                    {
-                        title: 'Design Skills',
-                        skillDetail: [
-                            {skillName: 'Web Design', percent: 4},
-                            {skillName: 'Graphic Design', percent: 4},
-                            {skillName: 'Print Design', percent: 6},
-                        ]
-                    },
-                    {
-                        title: 'Coding Skills',
-                        skillDetail: [
-                            {skillName: 'HML5', percent: 2},
-                            {skillName: 'CSS3', percent: 4},
-                            {skillName: 'jQuery', percent: 8},
-                            {skillName: 'Wordpress', percent: 10},
-                            {skillName: 'PHP', percent: 2},
-                            {skillName: 'Laravel', percent: 8},
-                        ]
-                    },
-                ],
-
+                educations: [],
+                experiences: [],
+                skills: [],
+                cvUrl: {},
                 showEducations: [],
                 showExperiences: [],
                 showSkills: [],
             }
         },
         created() {
-            this.setShowEducations(this.educations);
-            this.setShowExperiences(this.experiences);
-            this.setShowSkills(this.skills);
+            this.getResumeInfo();
+
         },
         computed: {
             // get skill percentage css style for each skill
@@ -424,19 +378,46 @@
             },
         },
         methods: {
+            // fetch data
+            getResumeInfo() {
+                axios.get('/getResume/' + this.$uToken)
+                    .then((res) => {
+                        this.educations = res.data.educations;
+                        this.experiences = res.data.experiences;
+                        this.skills = res.data.skills;
+                        this.cvUrl = res.data.cvUrl;
+                        this.setShowEducations(this.educations);
+                        this.setShowExperiences(this.experiences);
+                        this.setShowSkills(this.skills);
+                    });
+            },
             /**
              * Upload CV
              */
-            uploadCv(){
-                $("#upLoadCvInput:hidden").trigger('click');
+            uploadMyCV(e) {
+                let formData = new FormData();
+                formData.append('file', e.target.files[0]);
+                let url = '/util/upload';
+                let config = {
+                    headers: {'Content-Type': 'multipart/form-data'}
+                };
+                axios.post(url, formData, config)
+                    .then((res) => {
+                        this.cvUrl.url = res.data.savePath;
+                        axios.put('/admin/updateCv/' + this.$uToken, this.cvUrl)
+                            .then((res)=>{
+                                if (res.data.code ==1 ){
+                                    this.messageAlert(res.data)
+                                }
+                            });
+                    });
             },
-
             /**
              *  Edit skills data
              *  @param key is the key of data 'skill'
              *  @param k is the key of data 'skill[key].skillDetail' key
              */
-            delSkill(key,k) {
+            delSkill(key, k) {
                 this.skills[key].skillDetail.splice(k, 1);
             },
             addNewSkill(key) {
@@ -447,12 +428,14 @@
                 this.skills.splice(key, 1);
             },
             addNewSkillSet() {
-                var item = {title:'', skillDetail:[]};
+                var item = {title: '', skillDetail: []};
                 this.skills.push(item);
             },
-            saveSkillSets(e) {
-
-                this.setShowSkills(this.skills);
+            saveSkillSets() {
+                axios.put('/admin/updateSkills/' + this.$uToken, this.skills)
+                    .then((res) => {
+                        this.setShowSkills(this.skills);
+                    });
             },
             cancelSkillSets() {
                 this.skills = JSON.parse(JSON.stringify(this.showSkills));
@@ -467,10 +450,11 @@
                 var item = {};
                 this.experiences.push(item);
             },
-            saveExperience(e) {
-                // console.log(this.experiences);
-
-                this.setShowExperiences(this.experiences);
+            saveExperience() {
+                axios.put('/admin/updateExperiences/' + this.$uToken, this.experiences)
+                    .then((res) => {
+                        this.setShowExperiences(this.experiences);
+                    });
             },
             cancelExperience() {
                 this.experiences = JSON.parse(JSON.stringify(this.showExperiences));
@@ -485,8 +469,11 @@
                 var item = {};
                 this.educations.push(item);
             },
-            saveEducation(e) {
-                this.setShowEducations(this.educations);
+            saveEducation() {
+                axios.put('/admin/updateEducations/' + this.$uToken, this.educations)
+                    .then((res) => {
+                        this.setShowEducations(this.educations);
+                    });
             },
             cancelEducation() {
                 this.educations = JSON.parse(JSON.stringify(this.showEducations));

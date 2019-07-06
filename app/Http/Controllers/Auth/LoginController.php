@@ -47,8 +47,10 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
+        $uToken =uToken();
         $data = [
             'email' => $request->email,
+            'uToken' => $uToken,
             'password' => $request->password,
         ];
         $status = \Auth::attempt($data);

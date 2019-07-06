@@ -44,16 +44,6 @@
                 </ul>
                 <!-- /Main menu -->
 
-                <!-- Social buttons -->
-                <ul class="social-links">
-                    <li><a class="tip social-button" href="#" title="Twitter"><i class="fa fa-twitter"></i></a></li>
-                    <!-- Full list of social icons: http://fontawesome.io/icons/#brand -->
-                    <li><a class="tip social-button" href="#" title="Facebook"><i class="fa fa-facebook"></i></a></li>
-                    <li><a class="tip social-button" href="#" title="Google Plus"><i class="fa fa-google-plus"></i></a>
-                    </li>
-                </ul>
-                <!-- /Social buttons -->
-
                 <ul class="site-main-menu">
                     <li>
                         <a class="mt-2" style="background: #157FFB"
@@ -94,9 +84,12 @@
                     <div class="col-xs-6 col-md-12 subpage-block">
 
                         <div class="my-photo" style="margin-top:0px; margin-bottom: 0px; ">
-                            <a id="avatar-button" name="avatar-button" @click.prevent="uploadImage()"
+                            <a id="avatar" name="avatar-button"
                                class="edit-data"></a>
-                            <img :src="showDetail.image" alt="avatar">
+                            <img :src="showDetail.image" ref="avatarImage" id="avatarImage" alt="avatar">
+                            <input type="text" id="avatarInput" name="avatarImage"
+                                   class="form-control "
+                                   value="" hidden>
                             <div class="mask"></div>
                         </div>
 
@@ -163,7 +156,7 @@
                     </div>
                     <div class="col-xs-6 col-md-12 subpage-block">
 
-                        <form method="post" action="contact_form/contact_form.php"
+                        <form method="post" action=""
                               novalidate="true">
                             <div class="row">
                                 <div class="col-lg-12 col-xs-12">
@@ -212,8 +205,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 </template>
 
@@ -235,6 +226,7 @@
                     newPassword: '',
                     newPassword_confirmation: '',
                 },
+                shareButton: {},
                 AllData: [],
                 showDetail: {}
             }
@@ -244,10 +236,14 @@
             this.setShowDetail(this.detail);
         },
         methods: {
+
             getUserInfo() {
                 axios.get('/getUserInfo/' + this.$uToken)
                     .then((res) => {
                         this.detail = res.data;
+                        // Assign uToken to user
+                        this.detail.uToken = this.$uToken;
+                        // emit Event Bus for global user
                         this.$eventHub.$emit('initUserInfo', this.detail);
                         this.setShowDetail(this.detail);
                     });
@@ -261,13 +257,7 @@
                         this.messageAlert(res.data);
                     })
             },
-            /**
-             * Upload avatar image
-             *
-             */
-            uploadImage() {
-                console.log(this.detail.image);
-            },
+
             /**
              *  Edit skills data
              *  @param key is the key of data 'skill'
@@ -283,6 +273,7 @@
 
             //! update userInfo data
             save() {
+                this.detail.image = this.$refs.avatarImage.src;
                 // Because Form data is bind to this.detail,
                 // so dont need to submit the form but pass the data
                 axios.post('/admin/editUserInfo', this.detail)

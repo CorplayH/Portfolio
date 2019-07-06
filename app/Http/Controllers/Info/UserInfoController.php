@@ -8,6 +8,14 @@ use Illuminate\Http\Request;
 
 class UserInfoController extends Controller
 {
+    protected $uToken;
+    public function __construct()
+    {
+        $this->middleware('auth')->except([
+            'index'
+        ]);
+        $this->uToken = uToken();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,35 +25,32 @@ class UserInfoController extends Controller
     {
         // Get param from url / Route
         $uToken = $request->route('uToken');
+        // Get user info by user Token
         $userInfo = UserInfo::where('uToken', $uToken)->first();
+        // First login no data then
         if (!$userInfo) {
-            $userInfo = UserInfo::where('uToken', 'default')->first();
+            // For user first login, replicate a default data and assign to user's uToken
+            $userInfo = UserInfo::where('uToken', 'default')->first()->replicate();
+            $userInfo->uToken = $uToken;
+            $userInfo->save();
         }
         $userInfo = json_encode($userInfo);
-
         return response($userInfo);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function storeBasicInfo(Request $request)
     {
-        //
+        // Home component
+        // get uToken from url
+        $uToken = $request->route('uToken');
+        $data = json_encode($request->all());
+        UserInfo::where('uToken',$uToken)->update(['basicInfo' => $data],['userId' => auth()->user()->id]);
+        return ['code' => 1, 'type' => 'success', 'message' => 'Data updated'];
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-//        dd($request->all());
+        // Menu & Home components
         UserInfo::updateOrCreate(
             ['uToken' => $request->uToken],//查找条件
             [
@@ -62,52 +67,12 @@ class UserInfoController extends Controller
         return ['code' => 1, 'type' => 'success', 'message' => 'Data updated'];
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\UserInfo $userInfo
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show(UserInfo $userInfo)
+    public function storeBackground(Request $request)
     {
-        //
+        UserInfo::where('uToken',$this->uToken)->update([
+            'background' => $request->url,
+        ]);
+        return ['code' => 1, 'type' => 'success', 'message' => 'Background changed'];
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\UserInfo $userInfo
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(UserInfo $userInfo)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\UserInfo     $userInfo
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, UserInfo $userInfo)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\UserInfo $userInfo
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(UserInfo $userInfo)
-    {
-        //
-    }
 }

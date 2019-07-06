@@ -5915,7 +5915,7 @@ button.close {
           box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
 }
 .modal-backdrop {
-  position: fixed;
+  /*position: fixed;*/
   top: 0;
   right: 0;
   bottom: 0;

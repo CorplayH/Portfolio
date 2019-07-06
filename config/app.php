@@ -138,7 +138,6 @@ return [
 
         /*
          * Self installed Service Providers
-         *
          */
 
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
@@ -196,6 +195,10 @@ return [
     */
 
     'aliases' => [
+        /*
+        * Self installed Service Providers
+        */
+
 
         'App' => Illuminate\Support\Facades\App::class,
         'Arr' => Illuminate\Support\Arr::class,

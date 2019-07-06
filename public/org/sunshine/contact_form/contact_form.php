@@ -1,5 +1,5 @@
 <?php
-
+var_dump($from);
 // configure
 $from = 'Contact form <yourmail@domain.com>';
 $sendTo = 'your@mail.com';
@@ -38,7 +38,7 @@ if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'
                 'Reply-To: ' . $from,
                 'Return-Path: ' . $from,
             );
-            
+
             mail($sendTo, $subject, $emailText, implode("\n", $headers));
 
             $responseArray = array('type' => 'success', 'message' => $okMessage);

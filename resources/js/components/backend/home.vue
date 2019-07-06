@@ -13,13 +13,24 @@
                 </div>
 
                 <div class="block end" style="text-align: center">
-                    <ul class="info-list edit-field" v-bind:class="{'edit-field-on': isActive  == 'home'}">
+                    <ul class="info-list edit-field"
+                        v-bind:class="{'edit-field-on': isActive  == 'home'}">
                         <a class="edit-data" @click.prevent="openModal($event)" @mouseover="hover($event)"
                            @mouseleave="hover($event)"
                            id="home">
                         </a>
                         <li v-for="v in showData">
-                            <span class="title">{{v.title}}</span><span class="value">{{v.value}}</span>
+                            <div v-if="v.title == 'E-mail'">
+                                <span class="title">{{v.title}}</span>
+                                <a :href="'mailto:' + v.value">
+                                    {{v.value}}
+                                </a>
+                            </div>
+                            <div v-else>
+                                <span class="title">{{v.title}}</span>
+                                <span class="value">{{v.value}}</span>
+                            </div>
+
                         </li>
                     </ul>
                 </div>
@@ -34,15 +45,25 @@
                         </button>
                     </div>
                     <div class="col-xs-6 col-md-12 subpage-block">
-                        <form method="post" action="contact_form/contact_form.php"
+                        <form method="post" action=""
                               novalidate="true">
 
                             <div class="row" v-for="(v,key) in detail">
                                 <div class="col-lg-3 col-xs-12">
                                     <div class="form-group p-0">
-                                        <input v-model="v.title" type="text" :name="v.title "
-                                               class="form-control "
-                                               required="required" data-error="value" placeholder="Title">
+
+                                        <div v-if="v.title != 'E-mail'">
+                                            <input v-model="v.title" type="text" :name="v.title "
+                                                   class="form-control "
+                                                   required="required" data-error="value" placeholder="Title">
+                                        </div>
+                                        <div v-else>
+                                            <input v-model="v.title" disabled type="text" :name="v.title "
+                                                   class="form-control "
+                                                   required="required" data-error="value" placeholder="Title">
+                                        </div>
+
+
                                         <div class="form-control-border"></div>
                                         <div class="help-block with-errors"></div>
                                     </div>
@@ -120,9 +141,6 @@
                 this.detail = detail.basicInfo;
                 this.setShowData(this.detail);
             },
-            fetchData() {
-                // console.log(123);
-            },
             addNew() {
                 var item = {};
                 this.detail.push(item);
@@ -134,7 +152,11 @@
                 this.detail.splice(key, 1);
             },
             save() {
-                this.setShowData(this.detail);
+                axios.put('/admin/editBasicInfo/' + this.$uToken, this.detail)
+                    .then((res) => {
+                        this.$eventHub.$emit('updateUserBasicInfo', this.detail);
+                        this.setShowData(this.detail);
+                    });
             },
             setShowData(arr) {
                 // 赋值到不同的内存地址, 不会双向绑定

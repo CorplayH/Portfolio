@@ -47,7 +47,7 @@ class forgetPassword extends Notification
             ->subject('Forget your password?')//主题
             ->line('Click the button below to reset your password')
             ->action('Reset your password', route('resetPasswordPage',$this->token))
-            ->line('Thank you for using our application!');
+            ->line('This link will be expired in 15 minuts, Thank you for using our application!');
     }
 
     /**

@@ -33,17 +33,16 @@
                        :title="v.name"
                        :href="v.fileUrl"
                     >
-                        <img :src="v.thumbUrl" :alt="v.name">
+                        <img class="lightbox" :src="v.thumbUrl" :alt="v.name">
                         <div>
                             <h5 class="name">{{v.name}}</h5>
                             <small>{{v.type}}</small>
                             <i :class="v.type === 'Image' ? isImage.icon : (v.type ==='PDF'? isFile.icon : isUrl.icon)"></i>
                         </div>
                     </a>
-                    <button class="col-12 btn-sm btn-secondary"
-                            data-toggle="modal" :data-target="'#' + 'item' + k"
-
-                    >
+                    <button class="col-12 btn-sm btn-danger"
+                            data-toggle="modal"
+                            :data-target="'#' + 'item' + k">
                         Edit
                     </button>
                 </figure>
@@ -174,7 +173,6 @@
         </div>
         <!-- /Portfolio Content -->
 
-
         <!--add New modal-->
         <div class="modal fade" id="addNew" tabindex="-1" role="dialog" style="display: none;">
             <div class="modal-dialog modal-lg" role="document">
@@ -236,7 +234,8 @@
                                     </div>
                                     <div class="row">
                                         <img style="width: 230px; height:230px "
-                                             src="org/sunshine/images/portfolio/test.jpg">
+                                             v-if="details[details.length -1].fileUrl"
+                                             :src="details[details.length -1].fileUrl">
                                     </div>
 
                                 </div>
@@ -255,7 +254,8 @@
                                     <div class="row">
                                         <div class="col-6">{{details[details.length -1].fileUrl}}</div>
                                         <img class="col-6" style="width: 230px; height:230px "
-                                             src="org/sunshine/images/portfolio/test.jpg">
+                                             v-if="details[details.length -1].fileUrl"
+                                             :src="details[details.length -1].thumbUrl">
                                     </div>
                                 </div>
 
@@ -278,13 +278,12 @@
                                     </div>
 
                                     <img class="col-6" style="width: 230px; height:230px "
+                                         v-if="details[details.length -1].thumbUrl"
                                          :src="details[details.length -1].thumbUrl">
                                 </div>
 
                             </div>
                         </form>
-
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="button btn-send btn-secondary" data-dismiss="modal"
@@ -313,16 +312,16 @@
                 isImage: {class: 'lightbox', icon: 'fa fa-image'},
                 isFile: {class: '', icon: 'fa fa-file-text-o'},
                 isUrl: {class: '', icon: 'fa fa-link'},
-                allTags: [
-                    {name: 'All'},
-                    {name: 'Image'},
-                    {name: 'PDF'},
-                    {name: 'Website'}
-                ],
                 allTypes: [
-                    {name: 'Image'},
-                    {name: 'PDF'},
-                    {name: 'Website'}
+                    // {name: 'Image'},
+                    // {name: 'PDF'},
+                    // {name: 'Website'}
+                ],
+                allTags: [
+                    // {name: 'All'},
+                    // {name: 'Image'},
+                    // {name: 'PDF'},
+                    // {name: 'Website'}
                 ],
                 details: [
                     {
@@ -333,11 +332,11 @@
                         type: 'Image',
                     },
                     {
-                        name: 'file project',
-                        tag: '["All","PDF"]',
-                        fileUrl: 'org/sunshine/images/portfolio/2.jpg',
-                        thumbUrl: 'org/sunshine/images/portfolio/2.jpg',
-                        type: 'PDF',
+                        // name: 'file project',
+                        // tag: '["All","PDF"]',
+                        // fileUrl: 'org/sunshine/file/William.pdf',
+                        // thumbUrl: 'org/sunshine/images/portfolio/2.jpg',
+                        // type: 'PDF',
                     },
                     {
                         name: 'Website project',
@@ -359,10 +358,24 @@
             }
         },
         created() {
+            this.getPortfolioInfo();
             this.setShowDetails(this.details);
             this.setShowTags(this.allTags);
         },
         methods: {
+            getPortfolioInfo() {
+                axios.get('/getPortfolio/'+ this.$uToken)
+                    .then((res) => {
+                        // console.log(this.details);
+                        // console.log(res.data.details);
+                        this.details = res.data.details;
+                        this.setShowDetails(this.details);
+                        this.allTags = res.data.allTags;
+                        this.setShowTags(this.allTags);
+                        this.allTypes = res.data.allTypes;
+                    });
+
+            },
             /**
              * edit functions
              */
@@ -407,10 +420,6 @@
             /**
              * Upload avatar image
              */
-            uploadImage() {
-                console.log(this.detail.image);
-            },
-
 
             /**
              *  Edit skills data

@@ -19,6 +19,7 @@ class CreateUserInfosTable extends Migration
             $table->text('titles')->nullable(true)->comment('user titles');
             $table->string('image')->default('')->comment('User avatar');
             $table->text('basicInfo')->nullable(true)->comment('user basic Info');
+            $table->string('background')->default('')->comment('background image');
             $table->string('uToken')->nullable(true)->comment('uToken');
             $table->bigInteger('userId')->default(0)->comment('user Id');
             $table->timestamps();

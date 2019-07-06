@@ -11,7 +11,6 @@ class UserInfosTableSeeder extends Seeder
      */
     public function run()
     {
-        //
         \App\Models\UserInfo::create(
             [
                 'name' => 'Your name',
@@ -23,11 +22,11 @@ class UserInfosTableSeeder extends Seeder
                 'basicInfo' => [
                     ['title' => 'Age', 'value' => '18'],
                     ['title' => 'Address', 'value' => '88 Some Street, Some Town'],
-                    ['title' => 'Email', 'value' => 'email@example.com'],
+                    ['title' => 'E-mail', 'value' => 'email@example.com'],
                     ['title' => 'Phone', 'value' => '+0123 123 456 789'],
                     ['title' => 'Freelance', 'value' => 'Available'],
                 ],
-
+                'background' => 'org/sunshine/images/home_page_bg_2.jpg',
                 'uToken' => 'default',
                 'userId' => 0,
             ]

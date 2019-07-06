@@ -21,8 +21,9 @@
             <!-- Subpages -->
             <div class="subpages">
                 <!-- Home Subpage -->
-                <section data-id="home" class="pt-page pt-page-1 section-with-bg section-paddings-0"
-                         :style="{'background-image': 'url(' + backGround.url + ')'}">
+                <section id="homeSection" data-id="home" class="pt-page pt-page-1 section-with-bg section-paddings-0"
+                         :style="{'background-image': 'url(' + background.url + ')'}">
+                    {{--<img id="backgroundInput" ref="backgroundInput" hidden value="" />--}}
                     <a class="edit-data" @click.prevent="openModal($event)"
                        id="home-background">
                     </a>
@@ -40,10 +41,10 @@
                                 <div class="col-xs-6 col-md-12 subpage-block">
 
                                     <div style="margin-top:0px; margin-bottom: 0px; ">
-                                        <button id="background" class="btn-primary col-12" name="background-button"
-                                                @click.prevent="uploadImage()">Upload image
+                                        <button type="button" id="background" class="btn-primary col-12" name="background-button"
+                                                >Upload image
                                         </button>
-                                        <img :src="backGround.url" alt="background">
+                                        <img id="modalBackground" :src="background.url" ref="modalBackground" alt="background">
                                         <div class="mask"></div>
                                     </div>
                                 </div>
@@ -63,7 +64,7 @@
                 <!-- End of Home Subpage -->
                 <!-- About Me Subpage -->
                 <section class="pt-page pt-page-2" data-id="about_me">
-                    {{--@include('backend.aboutMe')--}}
+{{--                    @include('backend.aboutMe')--}}
                     <vue-about-me></vue-about-me>
                 </section>
                 <!-- End of About Me Subpage -->
@@ -75,17 +76,21 @@
                 <!-- End Resume Subpage -->
                 <!-- Portfolio Subpage -->
                 <section class="pt-page pt-page-4" data-id="portfolio">
-                    <vue-portfolio></vue-portfolio>
+                    @include('backend.portfolio')
+                    {{--<vue-portfolio></vue-portfolio>--}}
                 </section>
                 <!-- /Portfolio Subpage -->
                 <!-- Contact Subpage -->
                 <section class="pt-page pt-page-5" data-id="contact">
-                    @include('backend.contact')
+                    <vue-contact></vue-contact>
+                    {{--@include('backend.contact')--}}
                 </section>
                 <!-- End Contact Subpage -->
             </div>
         </div>
         <!-- /Page changer wrapper -->
+        <div id="frontMenu"></div>
+        <div id="frontApp"></div>
         <!-- /Main Content -->
     </div>
 </div>
